@@ -21,12 +21,12 @@
 
         </fragment>
 
-        <fragment
+        <FrameLayout
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="match_parent"
-            class="io.exziled.cartest2_2.RootSelection">
-        </fragment>
+            android:id="@+id/activeFragment">
+        </FrameLayout>
 
     </LinearLayout>
 

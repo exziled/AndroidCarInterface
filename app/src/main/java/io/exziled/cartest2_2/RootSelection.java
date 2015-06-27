@@ -1,6 +1,7 @@
 package io.exziled.cartest2_2;
 
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.graphics.Picture;
 import android.graphics.drawable.Drawable;
 import android.media.Image;
@@ -13,6 +14,8 @@ import android.widget.ImageView;
 
 import com.larvalabs.svgandroid.SVG;
 import com.larvalabs.svgandroid.SVGParser;
+
+import io.exziled.cartest2_2.music.MusicLandingFragment;
 
 /**
  * Created by bcarlson on 6/15/15.
@@ -31,6 +34,17 @@ public class RootSelection extends Fragment {
 
         aSVGObjs[0] = SVGParser.getSVGFromResource(getResources(), R.raw.sound16);
         aImageView[0] = (ImageView)view.findViewById(R.id.ivMusic);
+        aImageView[0].setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                Fragment musicFragment = new MusicLandingFragment();
+
+                FragmentManager fragmentManager = getFragmentManager();
+                fragmentManager.beginTransaction()
+                                .replace(R.id.activeFragment, musicFragment)
+                                .commit();
+            }
+        });
 
         aSVGObjs[1] = SVGParser.getSVGFromResource(getResources(), R.raw.earth26);
         aImageView[1] = (ImageView)view.findViewById(R.id.ivMaps);

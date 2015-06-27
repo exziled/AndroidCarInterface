@@ -1,9 +1,12 @@
 package io.exziled.cartest2_2;
 
+import io.exziled.cartest2_2.music.MusicLandingFragment;
 import io.exziled.cartest2_2.util.SystemUiHider;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -30,6 +33,14 @@ public class FullscreenActivity extends Activity {
                 | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
                 | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
                 | View.SYSTEM_UI_FLAG_IMMERSIVE);
+
+
+        Fragment rootFragment = new RootSelection();
+
+        FragmentManager fragmentManager = getFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.activeFragment, rootFragment)
+                .commit();
     }
 
 }
