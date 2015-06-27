@@ -1,0 +1,34 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:background="#0099cc"
+    tools:context=".FullscreenActivity">
+
+    <!-- The primary full-screen view. This can be replaced with whatever view
+         is needed to present your content, e.g. VideoView, SurfaceView,
+         TextureView, etc. -->
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/fullscreen_content">
+
+        <fragment
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
+            class="io.exziled.cartest2_2.AutoStatusBar">
+
+        </fragment>
+
+        <fragment
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            class="io.exziled.cartest2_2.RootSelection">
+        </fragment>
+
+    </LinearLayout>
+
+
+</FrameLayout>
