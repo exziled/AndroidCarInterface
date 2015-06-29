@@ -2,9 +2,6 @@ package io.exziled.cartest2_2;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.graphics.Picture;
-import android.graphics.drawable.Drawable;
-import android.media.Image;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -15,7 +12,7 @@ import android.widget.ImageView;
 import com.larvalabs.svgandroid.SVG;
 import com.larvalabs.svgandroid.SVGParser;
 
-import io.exziled.cartest2_2.music.MusicLandingFragment;
+import io.exziled.cartest2_2.music.ArtistBrowseFragment;
 
 /**
  * Created by bcarlson on 6/15/15.
@@ -24,25 +21,28 @@ public class RootSelection extends Fragment {
     SVG [] aSVGObjs;
     ImageView []aImageView;
 
+    static final int mRootSelectionOptions = 6;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_root_selection, container, false);
 
-        aSVGObjs = new SVG[6];
-        aImageView = new ImageView[6];
+        aSVGObjs = new SVG[mRootSelectionOptions];
+        aImageView = new ImageView[mRootSelectionOptions];
 
+        // Individual actions
         aSVGObjs[0] = SVGParser.getSVGFromResource(getResources(), R.raw.sound16);
         aImageView[0] = (ImageView)view.findViewById(R.id.ivMusic);
         aImageView[0].setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                Fragment musicFragment = new MusicLandingFragment();
+                Fragment musicFragment = new ArtistBrowseFragment();
 
                 FragmentManager fragmentManager = getFragmentManager();
                 fragmentManager.beginTransaction()
                                 .replace(R.id.activeFragment, musicFragment)
-                                .commit();
+                        .commit();
             }
         });
 
@@ -61,8 +61,8 @@ public class RootSelection extends Fragment {
         aSVGObjs[5] = SVGParser.getSVGFromResource(getResources(), R.raw.vehicle92);
         aImageView[5] = (ImageView)view.findViewById(R.id.ivSettings);
 
-
-        for(int i = 0; i < 6; i++)
+        // Set global configurations, like width, height, drawing
+        for(int i = 0; i < aImageView.length; i++)
         {
             aImageView[i].setImageDrawable(aSVGObjs[i].createPictureDrawable());
             aImageView[i].setLayerType(View.LAYER_TYPE_SOFTWARE, null);
