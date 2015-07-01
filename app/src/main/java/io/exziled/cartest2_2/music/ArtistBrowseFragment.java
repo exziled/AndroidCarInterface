@@ -8,10 +8,12 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.BoringLayout;
 import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -37,112 +39,133 @@ import io.exziled.cartest2_2.R;
 public class ArtistBrowseFragment extends Fragment {
     final String TAG = "ArtistBrowseFragment";
 
-    //private List<Artist> mArtists;
-    private TreeMap<String, Artist> mArtists;
-    private List<String> mLetters;
-
-    private RecyclerView mRecycler;
-    private ListView mLettersList;
-
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.layout_artist_browse, container, false);
 
-        mRecycler = (RecyclerView)view.findViewById(R.id.rvArtistName);
-        mLettersList = (ListView)view.findViewById(R.id.lvAristLetter);
+        new PopulateArtistsAsync(view.getContext(), view).execute();
 
-        LinearLayoutManager llm = new LinearLayoutManager(view.getContext());
-        mRecycler.setLayoutManager(llm);
-        mRecycler.setHasFixedSize(true);
-
-        initializeArtistList(view.getContext());
-
-        final LetterArrayAdapter letterAdapter = new LetterArrayAdapter(view.getContext(), mLetters);
-        mLettersList.setAdapter(letterAdapter);
-
-        initializeAdapters();
         return view;
     }
 
+    private class PopulateArtistsAsync extends AsyncTask<Void, Void, Boolean> {
 
-    private void initializeArtistList(Context appContext) {
-        //mArtists = new ArrayList<>();
-        mArtists = new TreeMap<>();
-        mLetters = new ArrayList<>();
+        private TreeMap<String, Artist> asyncArtists;
+        private List<String> asyncLetters;
 
-        ContentResolver artistResolver = appContext.getContentResolver();
-        Uri artistURI = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        String orderBy = MediaStore.Audio.Artists.ARTIST;
-        Cursor curArtist = artistResolver.query(artistURI, null, null, null, orderBy + " ASC");
+        private RecyclerView asyncRecycler;
+        private ListView asyncListView;
 
-        if (curArtist == null) {
-            Log.e(TAG, "Failed to retrieve music cursor");
-            return;
+        private Context asyncContext;
+        private View asyncView;
+
+        PopulateArtistsAsync(Context context, View view){
+            asyncArtists = new TreeMap<>();
+            asyncLetters = new ArrayList<>();
+
+            asyncContext = context;
+            asyncView = view;
         }
 
-        if (!curArtist.moveToFirst()){
-            Log.e(TAG, "Failed to move cursor to first row of results");
-            return;
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            asyncRecycler = (RecyclerView)asyncView.findViewById(R.id.rvArtistName);
+            asyncListView = (ListView)asyncView.findViewById(R.id.lvAristLetter);
+
+            LinearLayoutManager llm = new LinearLayoutManager(asyncView.getContext());
+            asyncRecycler.setLayoutManager(llm);
+            asyncRecycler.setHasFixedSize(true);
         }
 
-        int cArtist = curArtist.getColumnIndex(MediaStore.Audio.Media.ARTIST);
-        int cArtistID = curArtist.getColumnIndex(MediaStore.Audio.Media.ARTIST_KEY);
-        int cAlbumId = curArtist.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID);
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
 
-        Uri sArtworkUri = Uri.parse("content://media/external/audio/albumart");
+            final LetterArrayAdapter letterAdapter = new LetterArrayAdapter(asyncView.getContext(), asyncLetters);
+            asyncListView.setAdapter(letterAdapter);
 
-        do {
-            Bitmap bmAlbumArt = null;
+            ArtistAdapter artistAdapter = new ArtistAdapter(asyncArtists);
+            asyncRecycler.setAdapter(artistAdapter);
 
-            if (cAlbumId != -1) {
+            super.onPostExecute(aBoolean);
+        }
 
-                Long albumId = curArtist.getLong(cAlbumId);
-                Uri albumArtUri = ContentUris.withAppendedId(sArtworkUri, albumId);
+        @Override
+        protected Boolean doInBackground(Void... params) {
 
-                try {
-                    bmAlbumArt = MediaStore.Images.Media.getBitmap(appContext.getContentResolver(), albumArtUri);
-                    bmAlbumArt = Bitmap.createScaledBitmap(bmAlbumArt, 150, 150, true);
-                } catch (FileNotFoundException ex) {
-                    ex.printStackTrace();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
+            ContentResolver artistResolver = asyncContext.getContentResolver();
+            Uri artistURI = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+            String orderBy = MediaStore.Audio.Artists.ARTIST;
+            Cursor curArtist = artistResolver.query(artistURI, null, null, null, orderBy + " ASC");
+
+            if (curArtist == null) {
+                Log.e(TAG, "Failed to retrieve music cursor");
+                return Boolean.FALSE;
             }
 
-            if (!mArtists.containsKey(curArtist.getString(cArtistID)))
-            {
-                Artist addArtist = new Artist (curArtist.getString(cArtist));
+            if (!curArtist.moveToFirst()){
+                Log.e(TAG, "Failed to move cursor to first row of results");
+                return Boolean.FALSE;
+            }
 
-                if (bmAlbumArt != null)
+            int cArtist = curArtist.getColumnIndex(MediaStore.Audio.Media.ARTIST);
+            int cArtistID = curArtist.getColumnIndex(MediaStore.Audio.Media.ARTIST_KEY);
+            int cAlbumId = curArtist.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID);
+
+            Uri sArtworkUri = Uri.parse("content://media/external/audio/albumart");
+
+            do {
+                Bitmap bmAlbumArt = null;
+
+                if (cAlbumId != -1) {
+
+                    Long albumId = curArtist.getLong(cAlbumId);
+                    Uri albumArtUri = ContentUris.withAppendedId(sArtworkUri, albumId);
+
+                    try {
+                        bmAlbumArt = MediaStore.Images.Media.getBitmap(asyncContext.getContentResolver(), albumArtUri);
+                        bmAlbumArt = Bitmap.createScaledBitmap(bmAlbumArt, 150, 150, true);
+                    } catch (FileNotFoundException ex) {
+                        //ex.printStackTrace();
+                    } catch (IOException ex) {
+                        //ex.printStackTrace();
+                    }
+                }
+
+                if (!asyncArtists.containsKey(curArtist.getString(cArtistID)))
                 {
-                    addArtist.addArtwork(bmAlbumArt);
+                    Artist addArtist = new Artist (curArtist.getString(cArtist));
+
+                    if (bmAlbumArt != null)
+                    {
+                        addArtist.addArtwork(bmAlbumArt);
+                    }
+
+                    asyncArtists.put(curArtist.getString(cArtistID), addArtist);
+                } else {
+                    Artist artist = asyncArtists.get(curArtist.getString(cArtistID));
+
+                    if (bmAlbumArt != null)
+                    {
+                        artist.addArtwork(bmAlbumArt);
+                    }
                 }
 
-                mArtists.put(curArtist.getString(cArtistID), addArtist);
-            } else {
-                Artist artist = mArtists.get(curArtist.getString(cArtistID));
-
-                if (bmAlbumArt != null)
+                // Populate Letter List
+                String firstLetter = curArtist.getString(cArtist).substring(0, 1);
+                if (!asyncLetters.contains(firstLetter))
                 {
-                    artist.addArtwork(bmAlbumArt);
+                    asyncLetters.add(curArtist.getString(cArtist).substring(0, 1));
                 }
-            }
 
-            // Populate Letter List
-            String firstLetter = curArtist.getString(cArtist).substring(0, 1);
-            if (!mLetters.contains(firstLetter))
-            {
-                mLetters.add(curArtist.getString(cArtist).substring(0, 1));
-            }
+            } while(curArtist.moveToNext());
 
-        } while(curArtist.moveToNext());
+            curArtist.close();
+            Log.i(TAG, "Finished querying media");
 
-        Log.i(TAG, "Finished querying media");
-    }
-
-    private void initializeAdapters() {
-        ArtistAdapter artistAdapter = new ArtistAdapter(mArtists);
-        mRecycler.setAdapter(artistAdapter);
+            return null;
+        }
     }
 
 
