@@ -20,6 +20,7 @@ public class FullscreenActivity extends Activity {
 
         final View contentView = findViewById(R.id.fullscreen_content);
 
+
         contentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN

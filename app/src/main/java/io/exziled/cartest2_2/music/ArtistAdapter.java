@@ -1,5 +1,8 @@
 package io.exziled.cartest2_2.music;
 
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.Image;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -11,7 +14,11 @@ import android.widget.TextView;
 
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import io.exziled.cartest2_2.R;
 
@@ -36,10 +43,12 @@ public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ArtistView
         }
     }
 
-    List<Artist> artists;
+    private final ArrayList mArtistData;
 
-    ArtistAdapter(List<Artist> artists) {
-        this.artists = artists;
+    ArtistAdapter(TreeMap<String, Artist> artists) {
+        mArtistData = new ArrayList();
+
+        mArtistData.addAll(artists.entrySet());
     }
 
     @Override
@@ -50,19 +59,25 @@ public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ArtistView
     @Override
     public ArtistViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.layout_artist_item, viewGroup, false);
-        ArtistViewHolder avh = new ArtistViewHolder(v);
-
-        return avh;
+        return new ArtistViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(ArtistViewHolder artistViewHolder, int i) {
-        artistViewHolder.artistName.setText(artists.get(i).mName);
-//        artistViewHolder.artistImage.setImageDrawable(artists.get(i).getArtistDrawable());
+
+        Map.Entry<String, Artist> artistObj = (Map.Entry)mArtistData.get(i);
+
+        artistViewHolder.artistName.setText(artistObj.getValue().getName());
+        Bitmap albumArt = artistObj.getValue().getSingleImage(0);
+        if (albumArt != null)
+        {
+            artistViewHolder.artistImage.setImageDrawable(new BitmapDrawable(Resources.getSystem(), albumArt));
+        }
+
     }
 
     @Override
     public int getItemCount() {
-        return artists.size();
+        return mArtistData.size();
     }
 }

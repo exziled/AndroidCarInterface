@@ -6,8 +6,8 @@
     android:background="#004850">
 
     <ListView
-        android:layout_width="350dp"
-        android:layout_height="wrap_content"
+        android:layout_width="150dp"
+        android:layout_height="match_parent"
         android:divider="@null"
         android:dividerHeight="10dp"
         android:listSelector="@android:color/transparent"
@@ -16,15 +16,20 @@
         android:footerDividersEnabled="true"
         android:id="@+id/lvAristLetter"
         android:layout_gravity="left|top"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="10px"
+        android:paddingTop="0dp"
+        android:layout_marginLeft="30px"
+        android:layout_marginRight="30px" />
 
     <android.support.v7.widget.RecyclerView
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:background="@android:color/transparent"
 
         android:id="@+id/rvArtistName"
         android:layout_gravity="right|center_vertical"
         android:layout_alignParentTop="true"
-        android:layout_toEndOf="@+id/lvAristLetter" />
+        android:layout_toEndOf="@+id/lvAristLetter"
+        android:layout_marginRight="30px" />
 </RelativeLayout>
