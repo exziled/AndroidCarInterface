@@ -87,6 +87,12 @@ public class ArtistBrowseFragment extends Fragment {
 
             ArtistAdapter artistAdapter = new ArtistAdapter(asyncArtists);
             asyncRecycler.setAdapter(artistAdapter);
+            artistAdapter.SetOnItemClickListener(new ArtistAdapter.OnItemClickListener() {
+                @Override
+                public void onItemClick(View view, String key) {
+                   Log.v(TAG, "Click: " + asyncArtists.get(key).getName());
+                }
+            });
 
             super.onPostExecute(aBoolean);
         }

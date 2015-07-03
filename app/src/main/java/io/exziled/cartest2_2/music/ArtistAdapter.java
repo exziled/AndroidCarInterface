@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -27,7 +28,10 @@ import io.exziled.cartest2_2.R;
  */
 public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ArtistViewHolder> {
 
-    public static class ArtistViewHolder extends RecyclerView.ViewHolder {
+    private final ArrayList mArtistData;
+    OnItemClickListener mItemClickListener;
+
+    public class ArtistViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         CardView artistCard;
         TextView artistName;
@@ -40,15 +44,33 @@ public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ArtistView
             artistName = (TextView)itemView.findViewById(R.id.tvAristName);
             artistImage = (ImageView)itemView.findViewById(R.id.ivArtistImages);
 
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            if (mItemClickListener != null) {
+                Map.Entry<String, Artist> artistObj = (Map.Entry)mArtistData.get(getPosition());
+                mItemClickListener.onItemClick(v, artistObj.getKey());
+            }
         }
     }
 
-    private final ArrayList mArtistData;
+
 
     ArtistAdapter(TreeMap<String, Artist> artists) {
         mArtistData = new ArrayList();
 
         mArtistData.addAll(artists.entrySet());
+    }
+
+    public interface OnItemClickListener {
+        public void onItemClick(View view, String key);
+    }
+
+    public void SetOnItemClickListener(final OnItemClickListener mItemClickListener)
+    {
+        this.mItemClickListener = mItemClickListener;
     }
 
     @Override
